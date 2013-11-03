@@ -21,10 +21,4 @@ var io = require("socket.io").listen(server);
 io.sockets.on("connection", function(socket)
 {
 	mafia.init(io, socket);
-
-	socket.on('disconnect', function () 
-	{
-    	io.sockets.emit('removeuser', socket.id);
-    	io.sockets.emit('updateusers', socket.id);
-  	});
 })

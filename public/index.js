@@ -52,9 +52,9 @@ $(document).ready(function()
 		updateUserList: function(data)
 		{	
 			IO.userlistbox.html("");
-			for (var key in data)
+			for (var value in data)
 			{
-				IO.userlistbox.append("<li>"+data[key]+"</li>");
+				IO.userlistbox.append("<li>"+data[value]+"</li>");
 			}
 
 		},
