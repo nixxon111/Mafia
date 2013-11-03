@@ -1,45 +1,68 @@
 $(document).ready(function()
 {
-	var socket = io.connect("http://localhost:8000");
-	var name = prompt("what's your name?");
-	socket.on("connect", function()
-	{
-		socket.emit("adduser", name);
-	});
-	initChatWindow(name, socket);
+	IO.init();
 });
 
-
-function initChatWindow(name, socket)
-{
-	var messages = [];
-	var input = $("#input");
-	var sendButton = $("#sendButton");
-	var chatwindow = $("#chatwindow");
-
-	socket.on("updatechat", function(data)
-	{	
-		if (data.message)
-		{
-			messages.push({user : data.user, message : data.message});
-			var html = "";
-			for (var i = 0; i < messages.length; i++)
-			{
-				html += messages[i].user +": "+messages[i].message + "<br/>";
-			}
-			chatwindow.html(html);
-		}
-		else 
-		{
-			console.log("invalid data received");
-		}
-	});
-	
-	sendButton.click(function()
+	var IO =
 	{
-		var messagetext = input.val();
-		socket.emit("updatechat", { user: name, message: messagetext});
-		document.getElementById('input').value = '';
-	});
+		init: function()
+		{
+			IO.socket = io.connect("http://localhost:8000", 
+			{
+			"sync disconnect on unload" : true
+			});
+		IO.messages = [];
+		IO.input = $("#chatinput");
+		IO.sendButton = $("#sendButton");
+		IO.chatwindow = $("#chatwindow");
+		IO.userlistbox = $("#userList");
+		IO.name = prompt("what's your name?");
+		
+		IO.socket.on("updatechat", function(data)
+		{	
+			if (data.message)
+			{
+				IO.messages.push({user : data.user, message : data.message});
+				var html = "";
+				for (var i = 0; i < IO.messages.length; i++)
+				{
+					html += IO.messages[i].user +": "+IO.messages[i].message + "<br/>";
+				}
+				IO.chatwindow.html(html);
+			}
+			else 
+			{
+				console.log("invalid data received");
+			}
+		});
+		
+		IO.socket.on("updateusers", function(data)
+		{
+			IO.userlistbox.html("");
+			for (var key in data)
+			{
+				IO.userlistbox.append("<li>"+data[key]+"</li>");
+			}
+		});
 
-};
+		IO.sendButton.click(IO.sendChatMessage);
+
+		IO.socket.on("connect", function()
+		{
+			IO.socket.emit("adduser", IO.name);
+		});
+		
+		IO.socket.on("disconnect", function()
+		{
+			IO.socket.emit("removeuser", IO.socket.id);
+		});
+	},
+
+		sendChatMessage: function()
+		{
+			var messagetext = IO.input.val();
+			IO.socket.emit("updatechat", { user: IO.name, message: messagetext});
+			IO.input.val("");
+		}
+
+	};
