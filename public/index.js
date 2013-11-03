@@ -13,7 +13,7 @@ $(document).ready(function()
 function initChatWindow(name, socket)
 {
 	var messages = [];
-	var input = $("#chatinput");
+	var input = $("#input");
 	var sendButton = $("#sendButton");
 	var chatwindow = $("#chatwindow");
 
