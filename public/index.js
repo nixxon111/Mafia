@@ -17,6 +17,7 @@ $(document).ready(function()
 			IO.sendButton = $("#sendButton");
 			IO.chatwindow = $("#chatwindow");
 			IO.userlistbox = $("#userList");
+			IO.playerlist = $("#testtext");
 			IO.name = prompt("what's your name?");
 			
 			IO.bindEvents();

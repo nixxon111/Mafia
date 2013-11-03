@@ -38,3 +38,23 @@
 	float:right;
 
 }
+
+#userList
+{
+	position:absolute;
+	left:530px;
+	top:50px;
+
+}
+
+#testtext
+{
+	font-size: 30px;
+	color:rgb(0,0,255);
+	position:absolute;
+	left:550px;
+	top: 0px;
+
+
+}
+	
