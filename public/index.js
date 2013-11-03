@@ -7,19 +7,59 @@ $(document).ready(function()
 	{
 		init: function()
 		{
+			// IO variables
 			IO.socket = io.connect("http://localhost:8000", 
 			{
 			"sync disconnect on unload" : true
 			});
-		IO.messages = [];
-		IO.input = $("#chatinput");
-		IO.sendButton = $("#sendButton");
-		IO.chatwindow = $("#chatwindow");
-		IO.userlistbox = $("#userList");
-		IO.name = prompt("what's your name?");
+			IO.messages = [];
+			IO.input = $("#chatinput");
+			IO.sendButton = $("#sendButton");
+			IO.chatwindow = $("#chatwindow");
+			IO.userlistbox = $("#userList");
+			IO.name = prompt("what's your name?");
+			
+			IO.bindEvents();
+
+		},
+
+		bindEvents: function()
+		{
+			IO.socket.on("updatechat", IO.updateChat);
+			IO.sendButton.click(IO.sendChatMessage);
+			IO.socket.on("updateusers", IO.updateUserList);
+			
+			IO.socket.on("connect", function()
+			{
+				IO.socket.emit("adduser", IO.name);
+			});
 		
-		IO.socket.on("updatechat", function(data)
+			IO.socket.on("disconnect", function()
+			{
+				IO.socket.emit("removeuser", IO.socket.id);
+			});
+
+			IO.input.keypress(function(e)
+			{
+				if(e.which == 13)
+				{
+					IO.sendChatMessage();
+				}
+			});
+
+		},
+		updateUserList: function(data)
 		{	
+			IO.userlistbox.html("");
+			for (var key in data)
+			{
+				IO.userlistbox.append("<li>"+data[key]+"</li>");
+			}
+
+		},
+		updateChat: function(data)
+		{
+
 			if (data.message)
 			{
 				IO.messages.push({user : data.user, message : data.message});
@@ -34,35 +74,7 @@ $(document).ready(function()
 			{
 				console.log("invalid data received");
 			}
-		});
-		
-		IO.socket.on("updateusers", function(data)
-		{
-			IO.userlistbox.html("");
-			for (var key in data)
-			{
-				IO.userlistbox.append("<li>"+data[key]+"</li>");
-			}
-		});
-
-		IO.sendButton.click(IO.sendChatMessage);
-
-		IO.input.keyup(function(e){
-		if(e.keycode == 13){
-			IO.sendChatMessage();
-		}
-		});
-		IO.socket.on("connect", function()
-		{
-			IO.socket.emit("adduser", IO.name);
-		});
-		
-		IO.socket.on("disconnect", function()
-		{
-			IO.socket.emit("removeuser", IO.socket.id);
-		});
-	},
-
+		},
 		sendChatMessage: function()
 		{
 			var messagetext = IO.input.val();
