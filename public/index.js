@@ -47,6 +47,11 @@ $(document).ready(function()
 
 		IO.sendButton.click(IO.sendChatMessage);
 
+		IO.input.keyup(function(e){
+		if(e.keycode == 13){
+			IO.sendChatMessage();
+		}
+		});
 		IO.socket.on("connect", function()
 		{
 			IO.socket.emit("adduser", IO.name);
