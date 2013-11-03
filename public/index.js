@@ -1,25 +1,31 @@
 $(document).ready(function()
 {
-	initChatWindow();
+	var socket = io.connect("http://localhost:8000");
+	var name = prompt("what's your name?");
+	socket.on("connect", function()
+	{
+		socket.emit("adduser", name);
+	});
+	initChatWindow(name, socket);
 });
 
-function initChatWindow()
+
+function initChatWindow(name, socket)
 {
 	var messages = [];
-	var socket = io.connect("http://localhost:80");
 	var input = $("#input");
 	var sendButton = $("#sendButton");
 	var chatwindow = $("#chatwindow");
 
-	socket.on("message", function(data)
+	socket.on("updatechat", function(data)
 	{	
 		if (data.message)
 		{
-			messages.push(data.message);
+			messages.push({user : data.user, message : data.message});
 			var html = "";
 			for (var i = 0; i < messages.length; i++)
 			{
-				html += messages[i] + "<br/>";
+				html += messages[i].user +": "+messages[i].message + "<br/>";
 			}
 			chatwindow.html(html);
 		}
@@ -32,7 +38,7 @@ function initChatWindow()
 	sendButton.click(function()
 	{
 		var messagetext = input.val();
-		socket.emit("send", { message: messagetext});
+		socket.emit("updatechat", { user: name, message: messagetext});
 	});
 
 };

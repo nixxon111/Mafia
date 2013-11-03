@@ -1,3 +1,5 @@
+var port = 8000;
+
 var express = require("express");
 
 var path = require("path");
@@ -12,7 +14,7 @@ app.configure( function()
 	app.use(express.static(path.join(__dirname, "public")));
 });
 
-var server = require("http").createServer(app).listen(80);
+var server = require("http").createServer(app).listen(port);
 
 var io = require("socket.io").listen(server);
 
