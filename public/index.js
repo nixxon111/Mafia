@@ -39,6 +39,7 @@ function initChatWindow(name, socket)
 	{
 		var messagetext = input.val();
 		socket.emit("updatechat", { user: name, message: messagetext});
+		document.getElementById('input').value = '';
 	});
 
 };
