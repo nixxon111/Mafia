@@ -23,8 +23,6 @@ exports.init = function(_io, _socket)
 	gameSocket.on('disconnect', function () 
 	{
 		removeUserFromChat();
-    	io.sockets.emit('removeuser');
-    	io.sockets.emit('updateusers', usernames);
   	});
 }
 
