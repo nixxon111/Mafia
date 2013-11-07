@@ -42,18 +42,25 @@
 #userList
 {
 	position:absolute;
-	left:530px;
-	top:50px;
+	left:540px;
+	top:100px;
 
 }
 
 #testtext
 {
-	font-size: 30px;
+	font-size: 25px;
 	color:rgb(0,0,255);
 	position:absolute;
 	left:550px;
-	top: 0px;
+	top: 45px;
+}
 
-
+#daynight
+{
+	font-size: 45px;
+	color:rgb(255,0,0);
+	position:absolute;
+	left:550px;
+	top: -30px;
 }

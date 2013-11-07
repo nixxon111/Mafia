@@ -18,6 +18,7 @@
 	<ol id="userList">
 	</ol>
 </div>
+<h2 id="daynight"> Day </h2>
 <p id="testtext"> Players online: </p>
 
     <form method="GET">
@@ -41,9 +42,9 @@
     <script>
       $('.standard-demo').select2Buttons();
 
-      $('select[name=js-callback-select]').change(function() {
+     /* $('select[name=js-callback-select]').change(function() {
         alert('Changed to ' + $(this).val());
-      });
+      }); Bare slet det her tror jeg */
 
       $('select[name=playerchoice]').select2Buttons({noDefault: true});
     </script>
