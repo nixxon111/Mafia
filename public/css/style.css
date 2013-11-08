@@ -64,3 +64,29 @@
 	left:550px;
 	top: -30px;
 }
+
+.startandjoin
+{
+	margin: 5px;
+	float:absolute;
+	top: 500px;
+	
+}
+
+#btnCreateGame
+{
+	font-size: 25px;
+	color:rgb(255,0,255);
+	position:absolute;
+	left: 10px;
+	top: 650px;
+}
+
+#btnJoinGame
+{
+	font-size: 25px;
+	color:rgb(255,0,255);
+	position:absolute;
+	left: 135px;
+	top: 650px;
+}
