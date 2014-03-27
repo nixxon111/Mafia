@@ -37,7 +37,7 @@ $(document).ready(function()
 		
 			IO.socket.on("disconnect", function()
 			{
-				IO.socket.emit("removeuser", IO.socket.id);
+				IO.socket.emit("removeuser");
 			});
 
 			IO.input.keypress(function(e)
@@ -52,9 +52,9 @@ $(document).ready(function()
 		updateUserList: function(data)
 		{	
 			IO.userlistbox.html("");
-			for (var value in data)
+			for (var i=0; i < data.length; i++)
 			{
-				IO.userlistbox.append("<li>"+data[value]+"</li>");
+				IO.userlistbox.append("<li>"+data[i].name+"</li>");
 			}
 
 		},

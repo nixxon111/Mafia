@@ -1,6 +1,6 @@
 var io;
 var gameSocket;
-var usernames = {};
+var usernames = [];
 exports.init = function(_io, _socket)
 {
 	io = _io;
@@ -11,36 +11,43 @@ exports.init = function(_io, _socket)
 	gameSocket.on("updatechat", function(data) 
 	{
 		io.sockets.emit("updatechat", data);
-	})
+	});
 	gameSocket.on("adduser", function(name)
 	{
 		addUserToChat(name);
-	})
-	gameSocket.on("removeuser", function()
+	});
+	gameSocket.on("removeuser", function(name)
 	{
-		removeUserFromChat();
-	})
-	gameSocket.on('disconnect', function () 
+		removeUserFromChat(name);
+	});
+	gameSocket.on("disconnect", function(name) 
 	{
-		removeUserFromChat();
+		removeUserFromChat(name);
   	});
 }
 
 
 addUserToChat = function(name)
 {
-	gameSocket.name = name;
-	usernames[gameSocket.name] = name;
+	usernames.push({id: gameSocket.id, name : name});;
 	gameSocket.emit("updatechat",{user : "SERVER" , message : "you have connected"});
-	gameSocket.broadcast.emit("updatechat", {user : "SERVER", message : name+" has connected"});
+	io.sockets.emit("updatechat", {user : "SERVER", message : name+" has connected"});
 	gameSocket.emit("updateusers", usernames);
-	gameSocket.broadcast.emit("updateusers", usernames);
+	io.sockets.emit("updateusers", usernames);
 }
 
 removeUserFromChat = function()
 {
-	delete usernames[gameSocket.name];
-	gameSocket.broadcast.emit("updatechat", {user : "SERVER", message : gameSocket.name+" has disconnected"});
+	io.sockets.emit("updatechat", {user : "SERVER", message : usernames[gameSocket.id]+" has disconnected"});
+	for (var i = 0, len=usernames.length; i<len; i++)
+	{
+		var c = usernames[i]
+		if (c.id == gameSocket.id)
+		{
+			usernames.splice(i,1);
+			break;
+		}
+	}
 	gameSocket.emit("updateusers", usernames);
-	gameSocket.broadcast.emit("updateusers", usernames);
+	io.sockets.emit("updateusers", usernames);
 }

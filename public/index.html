@@ -2,11 +2,8 @@
 <head>
 <title>Mafia The Game</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="jQuery.select2Buttons.js"></script>
-    <link rel="stylesheet" type="text/css" href="select2Buttons.css" />
     <link rel="stylesheet" type="text/css" href="style.css" />
 <link rel="stylesheet" type="text/css" href="css/style.css">
-<script type="text/javascript" src="jQuery.select2Buttons.js"></script>
 <script src="libs/jquery-2.0.3.js"></script>
 <script src="index.js"></script>
 <script src="/socket.io/socket.io.js"></script>
@@ -39,16 +36,5 @@
           </select>
       </p>
 </form>
-
-    <script>
-      $('.standard-demo').select2Buttons();
-
-      $('select[name=js-callback-select]').change(function() {
-        alert('Changed to ' + $(this).val());
-      });
-
-      $('select[name=playerchoice]').select2Buttons({noDefault: true});
-    </script>
-
 </body>
 </html>
