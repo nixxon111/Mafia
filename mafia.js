@@ -6,7 +6,7 @@ exports.init = function(_io, _socket)
 	io = _io;
 	gameSocket = _socket;
 
-	gameSocket.emit("updatechat", {user: "SERVER",message: "welcome to the chat"});
+	gameSocket.emit("updatechat", {user: "SERVER",message: "Welcome to the chat"});
 
 	gameSocket.on("updatechat", function(data) 
 	{
@@ -29,11 +29,10 @@ exports.init = function(_io, _socket)
 
 addUserToChat = function(name)
 {
+<<<<<<< HEAD
 	usernames.push({id: gameSocket.id, name : name});;
 	gameSocket.emit("updatechat",{user : "SERVER" , message : "you have connected"});
 	io.sockets.emit("updatechat", {user : "SERVER", message : name+" has connected"});
-	gameSocket.emit("updateusers", usernames);
-	io.sockets.emit("updateusers", usernames);
 }
 
 removeUserFromChat = function()

@@ -24,10 +24,10 @@
 	color: #333333;
 	height: 30px;
 	width: 60px;
+	border: 1px solid
 	padding: 5px;
 	background: #f8f8f8;
 	border-color: #d3d3d3;
-	border: solid 1px rgba(0, 0, 0, 0.05);
 	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 	border-radius: 2px;
 	margin: 5px;
@@ -42,53 +42,25 @@
 #userList
 {
 	position:absolute;
-	left:530px;
-	top:50px;
+	left:540px;
+	top:100px;
 
 }
 
 #testtext
 {
-	font-size: 30px;
+	font-size: 25px;
 	color:rgb(0,0,255);
 	position:absolute;
 	left:550px;
-	top: 0px;
-
-
-}
-	
-#lol {
-  display: block;
-  clear: left;
-  padding-top: 5px;
+	top: 45px;
 }
 
-#lol {
-  list-style-type: none;
-  clear: left;
-  margin: 5px;
-  padding: 0;
+#daynight
+{
+	font-size: 45px;
+	color:rgb(255,0,0);
+	position:absolute;
+	left:550px;
+	top: -30px;
 }
-
-
-#lol { 
-  margin: 0 5px 5px 0; 
-}
-
-#lol .disabled {
-  border: 1px solid #9dc4e3;
-  -moz-border-radius: 3px; 
-  -webkit-border-radius: 3px; 
-}
-
-
-#lol {
-  color: #3c89c8;
-  padding: 4px;
-  text-align: center;
-  text-decoration: none;
-  font-size: 15px;  
-}
-
-
