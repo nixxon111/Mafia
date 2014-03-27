@@ -29,7 +29,6 @@ exports.init = function(_io, _socket)
 
 addUserToChat = function(name)
 {
-<<<<<<< HEAD
 	usernames.push({id: gameSocket.id, name : name});;
 	gameSocket.emit("updatechat",{user : "SERVER" , message : "you have connected"});
 	io.sockets.emit("updatechat", {user : "SERVER", message : name+" has connected"});
