@@ -56,6 +56,10 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     cache = []
     cache_size = 200
 
+    @classmethod
+    def getPlayers(): #static method, no self...ok?
+        return len(ChatSocketHandler.waiters)
+
     def allow_draft76(self):
         # for iOS 5.0 Safari
         return True
@@ -95,6 +99,10 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         ChatSocketHandler.send_updates(chat)
 
 
+def getPlayersInChat(): #static method, no self...ok?
+        return ChatSocketHandler.getPlayers()
+
+
 def main():
     tornado.options.parse_command_line()
     app = Application()
@@ -104,3 +112,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

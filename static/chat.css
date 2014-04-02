@@ -36,9 +36,15 @@ td {
   padding: 0;
 }
 
+#numPlayers {
+  position: absolute;
+  top: 20px;
+  left: 700px;
+}
+
 #body {
   position: absolute;
-  bottom: 10px;
+  bottom: 300px;
   left: 10px;
 }
 
