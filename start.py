@@ -57,8 +57,8 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     cache_size = 200
 
     @classmethod
-    def getPlayers(): #static method, no self...ok?
-        return len(ChatSocketHandler.waiters)
+    def getPlayers(cls): #static method, no self...ok?
+        return len(cls.waiters)
 
     def allow_draft76(self):
         # for iOS 5.0 Safari
@@ -112,4 +112,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

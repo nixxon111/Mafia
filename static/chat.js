@@ -66,12 +66,3 @@ var updater = {
         node.slideDown();
     }
 };
-
-function getNumPlayers() {
-    $.ajax({
-     type: "POST",
-    url: "~/start.py",
-     data: { param: text}
-    }).done(function( o ) {
-       // do something
-    });
