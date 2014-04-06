@@ -26,6 +26,8 @@ import tornado.web
 import tornado.websocket
 import os.path
 import uuid
+import random
+import roles
 
 from tornado.options import define, options
 
@@ -34,15 +36,76 @@ define("port", default=8888, help="run on the given port", type=int)
 class Game(object):
     cycle=0
     userList = {}
+    roleList=[]
+
 
     def __init__(self, waiters):
+        self.waiters = waiters
+        self.compileRoleList()
         self.giveRoles(waiters)
+
+    def compileRoleList(self):
+        count=0
+        for user in self.waiters:
+            count+=1
+            #add another random class, some method
+            # calculate how many mafia, town etc, and random between roles
+            if (count==1):
+                self.roleList.append(Doctor())
+            elif (count==2):
+                self.roleList.append(Godfather())
+            else:
+                self.roleList.append("I am some role %s <--" % count)
+        print(self.roleList)
 
     def giveRoles(self, waiters):
         count=0
         for user in waiters:
             count+=1
             print("player: ", count)
+            self.userList[user]=self.roleList[count-1]
+        print(self.userList)
+
+class Role(object):
+    number=0
+    align="NoAlignYetForThisRole"
+    healed=False
+    jailed=False
+    abilityNight=False
+    abilityAvail=False
+    immune=False
+    sheriffMess = "Does not have sheriff Message yet."
+    investMess = "Does not have investigator Message yet."
+    isAlive = True
+    LW = "Insert Last Will here."
+    name="NoNameYetForThisRole" #always override
+
+    def __init__(self, user):
+       self.user=user
+
+    def setLW(self, newLW):
+        self.LW=newLW
+
+    def useAbility(self, target):
+        #override
+        pass
+
+    def getLW(self ):
+        return self.LW
+    
+    def __str__(self):
+     return self.name
+
+
+class Doctor(object):
+    name="Doctor"
+
+class Godfather(object):
+    name="Godfather"
+
+'''
+                                TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!
+'''
 
 class Application(tornado.web.Application):
     def __init__(self):
