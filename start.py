@@ -86,13 +86,21 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
                 logging.error("Error sending message", exc_info=True)
 
     def on_message(self, message):
-        logging.info("got message %r", message)
+        logging.info("mess:%r", message)
         parsed = tornado.escape.json_decode(message)
-        chat = {
+        if (parsed["body"]=="night"): 
+            chat = {
+            "id": str(uuid.uuid4()),
+            "body": "OMG you wrote \"night\", congrats! ^^",
+            }
+            chat["html"] = tornado.escape.to_basestring(
+            self.render_string("message.html", message=chat))
+        else:
+            chat = {
             "id": str(uuid.uuid4()),
             "body": parsed["body"],
             }
-        chat["html"] = tornado.escape.to_basestring(
+            chat["html"] = tornado.escape.to_basestring(
             self.render_string("message.html", message=chat))
 
         ChatSocketHandler.update_cache(chat)
