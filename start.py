@@ -31,6 +31,18 @@ from tornado.options import define, options
 
 define("port", default=8888, help="run on the given port", type=int)
 
+class Game(object):
+    cycle=0
+    userList = {}
+
+    def __init__(self, waiters):
+        self.giveRoles(waiters)
+
+    def giveRoles(self, waiters):
+        count=0
+        for user in waiters:
+            count+=1
+            print("player: ", count)
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -88,19 +100,23 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         logging.info("mess:%r", message)
         parsed = tornado.escape.json_decode(message)
-        if (parsed["body"]=="night"): 
+        if (parsed["body"]=="start"): 
             chat = {
             "id": str(uuid.uuid4()),
-            "body": "OMG you wrote \"night\", congrats! ^^",
+            "body": "Game has begun",
             }
             chat["html"] = tornado.escape.to_basestring(
             self.render_string("message.html", message=chat))
+            ChatSocketHandler.update_cache(chat)
+            ChatSocketHandler.send_updates(chat)
+            game = Game(ChatSocketHandler.waiters)
         else:
             chat = {
             "id": str(uuid.uuid4()),
             "body": parsed["body"],
             }
-            chat["html"] = tornado.escape.to_basestring(
+
+        chat["html"] = tornado.escape.to_basestring(
             self.render_string("message.html", message=chat))
 
         ChatSocketHandler.update_cache(chat)
@@ -120,3 +136,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
