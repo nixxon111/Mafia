@@ -26,8 +26,7 @@ import tornado.web
 import tornado.websocket
 import os.path
 import uuid
-import random
-import roles
+from random import randint
 
 from tornado.options import define, options
 
@@ -38,32 +37,61 @@ class Game(object):
     userList = {}
     roleList=[]
 
-
     def __init__(self, waiters):
         self.waiters = waiters
         self.compileRoleList()
-        self.giveRoles(waiters)
+        self.giveRoles()
 
     def compileRoleList(self):
         count=0
+        length = len(self.waiters)
+        print("waiters/players: ", length)
+        mafias = length/3.5
+        benign=0
+        hostile=0
+        evil=0
+        if (length >= 11):
+            hostile = 1
+        if (length >= 7):
+            benign = 1
+        if (length >= 14):
+            evil = 1
+        towns = length-(benign+hostile+mafias)
         for user in self.waiters:
-            count+=1
+            count += 1
+
             #add another random class, some method
             # calculate how many mafia, town etc, and random between roles
-            if (count==1):
-                self.roleList.append(Doctor())
-            elif (count==2):
-                self.roleList.append(Godfather())
-            else:
-                self.roleList.append("I am some role %s <--" % count)
+            if mafias > 0:
+                self.roleList.append("Mafia Role")
+                mafias -= 1
+            elif hostile > 0:
+                self.roleList.append("Hostile Role")
+                hostile -= 1
+            elif benign > 0:
+                self.roleList.append("Benign Role")
+                benign -= 1
+            elif evil > 0:
+                self.roleList.append("Evil Role")
+                evil -= 1
+            elif towns > 0:
+                self.roleList.append("Town Role")
+                towns -= 1
+
+
         print(self.roleList)
 
-    def giveRoles(self, waiters):
+    def giveRoles(self):
         count=0
-        for user in waiters:
+        currentLen = len(self.waiters)
+        if len(self.waiters)!=len(self.roleList):
+            print("WTF len(waiters!=len(self.roleList)!!!? Why not the same?")
+        for user in self.waiters:
             count+=1
-            print("player: ", count)
-            self.userList[user]=self.roleList[count-1]
+            roleNo = randint(0,currentLen-count)
+            self.userList[user]=self.roleList[roleNo]
+            #self.roleList.remove(self.roleList[roleNo])
+            del self.roleList[roleNo]
         print(self.userList)
 
 class Role(object):
@@ -96,11 +124,10 @@ class Role(object):
     def __str__(self):
      return self.name
 
-
-class Doctor(object):
+class Doctor(Role):
     name="Doctor"
 
-class Godfather(object):
+class Godfather(Role):
     name="Godfather"
 
 '''
