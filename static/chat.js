@@ -26,9 +26,41 @@ $(document).ready(function() {
             return false;
         }
     });
+    $("#setNameId").live("submit", function() {
+        changeName();
+        return false;   //to stop before it goes to a/message/new
+    });
+    $("#setNameId").live("keypress", function(e) {
+        if (e.keyCode == 13) {
+            changeName();
+            return false;       //to stop before it goes to a/message/new
+        }
+    });
+   
     $("#message").select();
     updater.start();
 });
+
+function changeName() {
+        var newname = document.setName.username.value;
+        if (newname.length < 1) {
+            alert("Invalid name");
+            return false;
+        } else if (newname.length > 12) {
+            alert("Error 27: Invalid name:");
+            return false;
+        }
+
+        updater.name = newname;
+        //alert("Your new Name: " + updater.name);
+        return false;
+        // fejl hvis disse kaldes før return false; ???? why?
+        //$("#usernameText").value("");           // slet navnet ?? 
+        //$("#message").select();
+        //document.getElementById("usernameText").value("");     // slet navnet ??  
+        return false;
+        //this.find("input[type=text]").val("").select();
+}
 
 function newMessage(form) {
     var message = form.formToDict();
@@ -42,6 +74,7 @@ jQuery.fn.formToDict = function() {
     for (var i = 0; i < fields.length; i++) {
         json[fields[i].name] = fields[i].value;
     }
+    
     json["name"] = updater.name;
     if (json.next) delete json.next;
     return json;

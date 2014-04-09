@@ -48,6 +48,12 @@ td {
   left: 10px;
 }
 
+#setNameId {
+  position: absolute;
+  bottom: 270px;
+  left: 10px;
+}
+
 #input {
   margin-top: 0.5em;
 }
