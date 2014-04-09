@@ -51,10 +51,28 @@
                 Skriv "start" for at starte spillet, check CMD for log
 </p>
 
-  <form name="setName" id="setNameId" action="/a/changeName/" method="post">
+
+
+  <form name="setName" id="setNameId" action="/a/changeName" method="post">
     Your Username: <input type="text" name="username" id="usernameText"/>
     <input type="submit" id="btnChangeName" value="Set new Name"/>
   </form>
 
+  <form id="formGame" action="/templates/gameroom.html" method="post">
+    <input type="submit" id="btnGame" value="Join Game"/>
+  </form>
+
+  <!-- GAME ROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOM -->
+  <div id="gameroomDiv">
+    <ul>
+      <li><button onclick="target(1);">Target player 1</button></li>
+      <li><button onclick="target(2);">Target player 2</button></li>
+      <li><button onclick="target(3);">Target player 3</button></li>
+      <li><button onclick="target(4);">Target player 4</button></li>
+      <li><button onclick="target(5);">Target player 5</button></li>
+    </ul>
+
+
+  </div>
   </body>
 </html>

@@ -68,13 +68,23 @@ function newMessage(form) {
     form.find("input[type=text]").val("").select();
 }
 
+function target(player) {
+    var info = player+"";       // "convert" to string by adding + "";
+    message={}
+    message["method"]="target";
+    message["body"]=info;
+    message["name"]=updater.name;
+    updater.socket.send(JSON.stringify(message));
+    form.find("input[type=text]").val("").select();
+}
+
 jQuery.fn.formToDict = function() {
     var fields = this.serializeArray();
     var json = {}
     for (var i = 0; i < fields.length; i++) {
         json[fields[i].name] = fields[i].value;
     }
-    
+    json["method"] = "chat";
     json["name"] = updater.name;
     if (json.next) delete json.next;
     return json;
