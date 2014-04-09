@@ -42,11 +42,13 @@ jQuery.fn.formToDict = function() {
     for (var i = 0; i < fields.length; i++) {
         json[fields[i].name] = fields[i].value;
     }
+    json["name"] = updater.name;
     if (json.next) delete json.next;
     return json;
 };
 
 var updater = {
+    name: "random name",
     socket: null,
 
     start: function() {

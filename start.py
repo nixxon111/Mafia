@@ -78,7 +78,6 @@ class Game(object):
                 self.roleList.append("Town Role")
                 towns -= 1
 
-
         print(self.roleList)
 
     def giveRoles(self):
@@ -120,7 +119,7 @@ class Role(object):
 
     def getLW(self ):
         return self.LW
-    
+
     def __str__(self):
      return self.name
 
@@ -157,6 +156,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = set()
     cache = []
     cache_size = 200
+    name = ""
 
     @classmethod
     def getPlayers(cls): #static method, no self...ok?
@@ -190,27 +190,36 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         logging.info("mess:%r", message)
         parsed = tornado.escape.json_decode(message)
-        if (parsed["body"]=="start"): 
+        if parsed["body"] is None or len(parsed["body"])<1:     #avoids printing empty messages
+            return
+
+        chat = {
+        "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
+        "body": parsed["body"],
+        "nameId": parsed["name"],
+        }
+
+        chat["html"] = tornado.escape.to_basestring(
+        self.render_string("message.html", message=chat))
+
+        ChatSocketHandler.update_cache(chat)
+        ChatSocketHandler.send_updates(chat)
+        
+        # if "start" then start a new game and print that its started
+        if (parsed["body"]=="start"):
+
+            game = Game(self.waiters)
+
+
             chat = {
-            "id": str(uuid.uuid4()),
-            "body": "Game has begun",
+            "id": str(uuid.uuid4()),       # Hvad skal vi bruge det lort til?
+            "body": "Game has started!",
+            "nameId": "Game",
             }
             chat["html"] = tornado.escape.to_basestring(
             self.render_string("message.html", message=chat))
             ChatSocketHandler.update_cache(chat)
             ChatSocketHandler.send_updates(chat)
-            game = Game(ChatSocketHandler.waiters)
-        else:
-            chat = {
-            "id": str(uuid.uuid4()),
-            "body": parsed["body"],
-            }
-
-        chat["html"] = tornado.escape.to_basestring(
-            self.render_string("message.html", message=chat))
-
-        ChatSocketHandler.update_cache(chat)
-        ChatSocketHandler.send_updates(chat)
 
 
 def getPlayersInChat(): #static method, no self...ok?
