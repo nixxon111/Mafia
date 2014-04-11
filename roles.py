@@ -100,12 +100,10 @@ class Doctor(Role):
 class Godfather(Role):
     name="Godfather"
 
-class Room(tornado.websocket.WebSocketHandler):
-    roomNo=0
-    players = []
+class RoomSocketHandler(tornado.websocket.WebSocketHandler):
 
     def __init__(self):
-        Room.roomNo += 1
+        pass
 
     def open(self):
         self.players.append(self)
@@ -131,7 +129,15 @@ class Room(tornado.websocket.WebSocketHandler):
                     player.write_message(chat)
                 except:
                     logging.error("Error sending message", exc_info=True)
+class Room(object):
+    players = []
 
-'''
-                                TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!
-'''
+    def addPlayer(self, player):
+        self.players.append(player)
+
+    def removePlayer(self, player):
+        self.players.remove(player)
+
+    def __init__(self):
+        pass
+
