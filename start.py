@@ -132,6 +132,38 @@ class Doctor(Role):
 class Godfather(Role):
     name="Godfather"
 
+class Room(tornado.websocket.WebSocketHandler):
+    roomNo=0
+    players = []
+
+    def __init__(self):
+        Room.roomNo += 1
+
+    def open(self):
+        self.players.append(self)
+
+    def on_close(self):
+        self.players.remove(self)
+
+    def on_message(self, message):
+        logging.info("mess:%r", message)
+        parsed = tornado.escape.json_decode(message)
+        if parsed["body"] is None or len(parsed["body"])<1:     #avoids printing empty messages
+            return
+
+        else:
+            chat = {
+            "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
+            "body": parsed["body"],
+            "nameId": (" %s says " % parsed["name"]),
+            }
+            #chat["html"] = tornado.escape.to_basestring(self.render_string("message.html", message=chat))
+            for player in self.players:
+                try:
+                    player.write_message(chat)
+                except:
+                    logging.error("Error sending message", exc_info=True)
+
 '''
                                 TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!       TORNADO STARTS HERE!!
 '''
@@ -158,8 +190,8 @@ class MainHandler(tornado.web.RequestHandler):
 class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = set()
     cache = []
-    cache_size = 200
-    name = ""
+    cache_size = 30     #hvor mange linjer/beskeder den skal huske/printe når en ny person joiner
+    rooms = []
 
     @classmethod
     def getPlayers(cls): #static method, no self...ok?
@@ -214,6 +246,27 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         ChatSocketHandler.update_cache(chat)
         ChatSocketHandler.send_updates(chat)
 
+    def newroom(self, parsed):
+        room = Room()
+        ChatSocketHandler.rooms.append(room)    # Add a new room to the list
+
+        chat = {
+        "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
+        "body": parsed["body"],
+        "nameId": (">New Room< %s creates room (RoomNo:%d) " % (parsed["name"], len(ChatSocketHandler.rooms)))
+        }
+        
+        chat["html"] = tornado.escape.to_basestring(
+        self.render_string("message.html", message=chat))
+
+        ChatSocketHandler.update_cache(chat)
+        ChatSocketHandler.send_updates(chat)
+
+    def join(self, parsed):
+        room = ChatSocketHandler.rooms[0] #replace 0 with parsed number
+        self.on_close()
+        room.open()
+
 
 
     def on_message(self, message):
@@ -222,15 +275,23 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         if parsed["body"] is None or len(parsed["body"])<1:     #avoids printing empty messages
             return
 
-        if parsed["method"]=="chat":
+        if parsed["body"]=="newroom":
+            self.newroom(parsed);
+
+        elif parsed["body"]=="join":
+            self.join(parsed);
+
+        elif parsed["method"]=="chat":
             self.chatMethod(parsed);
-        
+
         elif parsed["method"]=="target":
             self.targetMethod(parsed);
+
+        
             
         
         # if "start" then start a new game and print that its started
-        if (parsed["body"]=="start"):
+        elif (parsed["body"]=="start"):
             game = Game(self.waiters)
 
             chat = {

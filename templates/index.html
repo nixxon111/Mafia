@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ static_url("chat.css") }}" type="text/css"/>
   </head>
   <body>
-    <div id="body">
+    <div id="chat">
       <div id="inbox">
         {% for message in messages %}
           {% include "message.html" %}
@@ -63,7 +63,7 @@
   </form>
 
   <!-- GAME ROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOM -->
-  <div id="gameroomDiv">
+  <div id="playerlist">
     <ul>
       <li><button onclick="target(1);">Target player 1</button></li>
       <li><button onclick="target(2);">Target player 2</button></li>

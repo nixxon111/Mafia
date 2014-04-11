@@ -42,15 +42,15 @@ td {
   left: 700px;
 }
 
-#body {
+#chat {
   position: absolute;
-  bottom: 300px;
+  bottom: 100px;
   left: 10px;
 }
 
 #setNameId {
   position: absolute;
-  bottom: 270px;
+  bottom: 70px;
   left: 10px;
 }
 
@@ -65,4 +65,9 @@ td {
 #nav {
   float: right;
   z-index: 99;
+}
+
+#playerlist {
+  float: right;
+  padding-right: 20px;
 }
