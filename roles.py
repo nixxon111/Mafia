@@ -1,4 +1,4 @@
-import tornado
+from random import randint
 
 class Game(object):
     cycle=0
@@ -103,6 +103,7 @@ class Godfather(Role):
 class Sheriff(Role):
     name="Godfather"
 
+'''
 class RoomSocketHandler(tornado.websocket.WebSocketHandler):
 
     def __init__(self):
@@ -131,10 +132,11 @@ class RoomSocketHandler(tornado.websocket.WebSocketHandler):
                     player.write_message(chat)
                 except:
                     logging.error("Error sending message", exc_info=True)
+'''
 
 class Room(object):
     players = []
-    #game = "GameNotStarted"
+    game = "GameNotStarted"
 
 
     def addPlayer(self, player):
@@ -144,7 +146,7 @@ class Room(object):
         self.players.remove(player)
 
     def startGame(self):
-        self.game = Game(self.players)
+        game = Game(self.players)
 
     def __init__(self):
         pass
