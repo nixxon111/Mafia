@@ -100,6 +100,9 @@ class Doctor(Role):
 class Godfather(Role):
     name="Godfather"
 
+class Sheriff(Role):
+    name="Godfather"
+
 class RoomSocketHandler(tornado.websocket.WebSocketHandler):
 
     def __init__(self):
@@ -116,7 +119,6 @@ class RoomSocketHandler(tornado.websocket.WebSocketHandler):
         parsed = tornado.escape.json_decode(message)
         if parsed["body"] is None or len(parsed["body"])<1:     #avoids printing empty messages
             return
-
         else:
             chat = {
             "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
@@ -129,8 +131,11 @@ class RoomSocketHandler(tornado.websocket.WebSocketHandler):
                     player.write_message(chat)
                 except:
                     logging.error("Error sending message", exc_info=True)
+
 class Room(object):
     players = []
+    #game = "GameNotStarted"
+
 
     def addPlayer(self, player):
         self.players.append(player)
@@ -138,6 +143,8 @@ class Room(object):
     def removePlayer(self, player):
         self.players.remove(player)
 
+    def startGame(self):
+        self.game = Game(self.players)
+
     def __init__(self):
         pass
-
