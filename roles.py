@@ -1,9 +1,21 @@
-from random import randint
+from random import choice
 import logging
 
 class Game(object):
     cycle=0
     userList = {}
+
+    @classmethod
+    def mafiaDeception(cls):
+        nr = randint(0,2)
+        if nr == 0:
+            return Beguiler()
+        elif nr == 1:
+            return Disguiser()
+        elif nr == 2:
+            return Framer()
+        else:
+            return janitor()
 
     def __init__(self, players):
         roleList = self.compileRoleList(players)
@@ -13,14 +25,15 @@ class Game(object):
         return ("cycle: ", cycle, " - UserList: ", userList)
 
     def compileRoleList(self, players):     #take len(players instead? faster?)
-        count=0
+        #count=0
         length = len(players)
         mafias = length/3.5
         benign=0
         hostile=0
         evil=0
         roleList = []
-        mafiaRoles = [] ### ADD HERE TO GIVE RANDOM ROLES maybe? take from array?
+        mafiaRoles = [Godfather()] ### ADD HERE TO GIVE RANDOM ROLES maybe? take from array?
+        #mafiaRoles.add
 
         if (length >= 11):
             hostile = 1
@@ -29,16 +42,30 @@ class Game(object):
         if (length >= 14):
             evil = 1
         towns = length-(benign+hostile+mafias)
-        for user in players:
-            count += 1
+
+        if mafias > 0:
+                roleList.append(Godfather())
+                mafias -= 1
+                if mafias > 0:
+                    roleList.append(Game.mafiaDeception())
+                    mafias -= 1
+                    if mafias > 0:
+                        roleList.append(Game.mafiaDeception())#Game.mafiaKilling())
+                        mafias -= 1
+                        if mafias > 0:
+                            roleList.append(Game.mafiaDeception())#Game.mafiaSupport())
+                            mafias -= 1
+                            
+        for i in range(0, len(players)-int(mafias)):
+            #count += 1
 
             #add another random class, some method
             # calculate how many mafia, town etc, and random between roles
 
 
-            if mafias > 0:
-                roleList.append(Godfather())
-                mafias -= 1
+            
+
+
             elif hostile > 0:
                 roleList.append("Hostile Role")
                 hostile -= 1
@@ -51,6 +78,8 @@ class Game(object):
             elif towns > 0:
                 roleList.append(Doctor())
                 towns -= 1
+            else:
+                logging.info("RAN OUT OF USERS, roles.py: ~80")
 
         logging.info(roleList)
         return roleList
@@ -62,13 +91,9 @@ class Game(object):
         if len(players)!=len(roleList):
             print("WTF len(waiters!=len(self.roleList)!!!? Why not the same?")
         for user in players:
-            #if len(roleList) == 0:
-            #    roleNo = 0
-            #else:
-            roleNo = randint(0,len(roleList)-1)         #stupid randrange OR randint cannot random from 0 to 0. 
-            self.userList[user]=roleList[roleNo]
-            #self.roleList.remove(self.roleList[roleNo])
-            del roleList[roleNo]
+            role = choice(roleList)      
+            self.userList[user] = role
+            roleList.remove(role)  
         print(self.userList)
 
 class Role(object):
@@ -86,7 +111,7 @@ class Role(object):
     name="NoNameYetForThisRole" #always override
 
     def __init__(self):
-        logging.info("I AM role: %s" % self.name) #nothing in constr?
+        pass
 
     def setLW(self, newLW):
         self.LW=newLW
@@ -101,17 +126,38 @@ class Role(object):
     def __str__(self):
      return self.name
 
+        ########### TOWN ROLES
+
 class Doctor(Role):
     name="Doctor"
     align="Town"
+
+class Sheriff(Role):
+    name="Sheriff"
+    align="Town"
+
+        ########### MAFIA ROLES
 
 class Godfather(Role):
     name="Godfather"
     align="Mafia"       #enums exist in python? Or maybe create constants in class.Role for safety?
 
-class Sheriff(Role):
-    name="Sheriff"
-    align="Town"
+
+class Beguiler(Role):
+    name="Beguiler"
+    align="Mafia"  
+
+class Disguiser(Role):
+    name="Disguiser"
+    align="Mafia"
+
+class Framer(Role):
+    name="Framer"
+    align="Mafia"
+
+class janitor(Role):
+    name="janitor"
+    align="Mafia"
 
 '''
 class RoomSocketHandler(tornado.websocket.WebSocketHandler):
