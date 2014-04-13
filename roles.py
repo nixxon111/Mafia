@@ -52,8 +52,8 @@ class Game(object):
                 roleList.append(Doctor())
                 towns -= 1
 
-            logging.info(roleList)
-            return roleList
+        logging.info(roleList)
+        return roleList
         
 
 
@@ -62,10 +62,10 @@ class Game(object):
         if len(players)!=len(roleList):
             print("WTF len(waiters!=len(self.roleList)!!!? Why not the same?")
         for user in players:
-            if len(roleList) == 0:
-                roleNo = 0
-            else:
-                roleNo = randint(0,len(roleList)-1)         #stupid randrange OR randint cannot random from 0 to 0. 
+            #if len(roleList) == 0:
+            #    roleNo = 0
+            #else:
+            roleNo = randint(0,len(roleList)-1)         #stupid randrange OR randint cannot random from 0 to 0. 
             self.userList[user]=roleList[roleNo]
             #self.roleList.remove(self.roleList[roleNo])
             del roleList[roleNo]
