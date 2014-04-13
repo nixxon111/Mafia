@@ -32,7 +32,6 @@ class Game(object):
         hostile=0
         evil=0
         roleList = []
-        mafiaRoles = [Godfather()] ### ADD HERE TO GIVE RANDOM ROLES maybe? take from array?
         #mafiaRoles.add
 
         if (length >= 11):
@@ -42,6 +41,16 @@ class Game(object):
         if (length >= 14):
             evil = 1
         towns = length-(benign+hostile+mafias)
+
+        if hostile > 0:
+            roleList.append(Serialkiller()) #randomHostile()
+            hostile -= 1
+        if evil > 0:
+            roleList.append(Arsonist()) #randomEvil()
+            evil -= 1
+        if benign > 0:
+            roleList.append(Survivor()) #randomBenign
+            benign -= 1
 
         if mafias > 0:
                 roleList.append(Godfather())
@@ -56,31 +65,26 @@ class Game(object):
                             roleList.append(Game.mafiaDeception())#Game.mafiaSupport())
                             mafias -= 1
                             
-        for i in range(0, len(players)-int(mafias)):
-            #count += 1
-
-            #add another random class, some method
-            # calculate how many mafia, town etc, and random between roles
-
-
-            
-
-
-            elif hostile > 0:
-                roleList.append("Hostile Role")
-                hostile -= 1
-            elif benign > 0:
-                roleList.append("Benign Role")
-                benign -= 1
-            elif evil > 0:
-                roleList.append("Evil Role")
-                evil -= 1
-            elif towns > 0:
+        if towns > 0:
+            roleList.append(Sheriff())
+            towns -= 1
+            if towns > 0:
                 roleList.append(Doctor())
                 towns -= 1
-            else:
-                logging.info("RAN OUT OF USERS, roles.py: ~80")
+                if towns > 0:
+                    roleList.append(Investigator())
+                    towns -= 1
+                    if towns > 0:
+                        roleList.append(Game.townKilling())
+                        towns -= 1
+                        if towns > 0:
+                            roleList.append(Game.townInvestigative())
+                            towns -= 1
 
+
+        if len(roleList) != len(players):
+            logging.info("len(roleList) != len(players) NOT GOOD, roles.py: ~63+")
+                
         logging.info(roleList)
         return roleList
         
@@ -135,6 +139,18 @@ class Doctor(Role):
 class Sheriff(Role):
     name="Sheriff"
     align="Town"
+
+            ########### HOSTILE ROLES
+
+class Serialkiller():
+    name="Serialkiller"
+    align="Neutral"
+
+        ########### BENIGN ROLES
+
+class Survivor():
+    name="Survivor"
+    align="Neutral"
 
         ########### MAFIA ROLES
 
