@@ -191,10 +191,16 @@ class RoomSocketHandler(tornado.websocket.WebSocketHandler):
 '''
 
 class Room(object):
-    players = []
-    game = None
-    #game = "GameNotStarted"
-
+    number = 0
+    maxplayers = 15
+    def __init__(self):
+        self.players = []
+        self.game = None
+        self.number = number
+        number += 1
+        
+    def __repr__(self):
+        return "room number: "+str(self.number)+", players: "+str(len(players)+"/"+str(maxplayers)
 
     def addPlayer(self, player):
         self.players.append(player)
@@ -209,7 +215,3 @@ class Room(object):
             self.game = Game(self.players)
         else:
             logging.info("Game alrdy started")
-        
-
-    def __init__(self):
-        pass

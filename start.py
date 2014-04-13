@@ -17,7 +17,8 @@ import tornado
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r"/lobby", MainHandler),
+            (r"index", MainHandler)
+            (r"/lobby", LobbyHandler),
             (r"/chatsocket", ChatSocketHandler),
             (r"/gameroom", GameRoomHandler),
         ]
@@ -28,6 +29,10 @@ class Application(tornado.web.Application):
             xsrf_cookies=True,
         )
         tornado.web.Application.__init__(self, handlers, **settings)
+
+class MainHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("index.html", roomlist=ChatSocketHandler.rooms)
 
 class LobbyHandler(tornado.web.RequestHandler):
     def get(self):
