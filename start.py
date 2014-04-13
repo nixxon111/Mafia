@@ -130,18 +130,8 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         ChatSocketHandler.send_updates(chat)
 
     def getRole(self, parsed):
-
-        logging.info(type(self.room.game) is str)
-         #hvorfor FUCK!!? er game i room en string?
-
-        #index = self.room.players.index(self)   #get index of 'this player' in the room
-        #logging.info("INDEX: %s" % index)
         role = self.room.game.userList[self]
         logging.info(role)
-        #######################
-        #role = self.room.game.roleList[0]
-        #role = self.room.game.roleList[index]        
-                        # get role description instead, and show it as text instead
         chat = {
         "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
         "body": parsed["body"],
