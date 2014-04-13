@@ -1,23 +1,3 @@
-#!/usr/bin/env python
-#
-# Copyright 2009 Facebook
-#
-# Licensed under the Apache License, Version 2.0 (the "License"); you may
-# not use this file except in compliance with the License. You may obtain
-# a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations
-# under the License.
-"""Simplified chat demo for websockets.
-
-Authentication, error handling, etc are left as an exercise for the reader :)
-"""
-
 import logging
 import tornado.escape
 import tornado.ioloop
@@ -48,7 +28,6 @@ class Application(tornado.web.Application):
         )
         tornado.web.Application.__init__(self, handlers, **settings)
 
-
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html", messages=ChatSocketHandler.cache)
@@ -58,8 +37,8 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     cache = []          #class field
     cache_size = 30     #class field        #hvor mange linjer/beskeder den skal huske/printe når en ny person joiner
     rooms = []          #class field
+    userId = randint(0,10)
     #room = "Is not in any room"
-
 
     @classmethod
     def getPlayers(cls): #static method, no self...ok?
@@ -74,6 +53,9 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         ChatSocketHandler.waiters.remove(self)
+
+    def __str__(self):
+        return str("PlayerID: %s" % self.userId)
 
     @classmethod
     def update_cache(cls, chat):
@@ -92,7 +74,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 
     def chatMethod(self, parsed):
         chat = {
-        "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD? Bliver brugt som id for HTML "objektet"
+        "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til?? Bliver brugt som id for HTML "objektet"
         "body": parsed["body"],
         "nameId": (" %s says " % parsed["name"]),
         }
@@ -104,7 +86,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 
     def targetMethod(self, parsed):
         chat = {
-        "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
+        "id": str(uuid.uuid4()),        #Hv
         "body": parsed["body"],
         "nameId": (" %s targets " % parsed["name"]),
         }
@@ -135,17 +117,31 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         room.addPlayer(self)
         self.room = room
         #ChatSocketHandler.waiters.remove(self) # remove player from main chat as they enter a room
+        chat = {
+        "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
+        "body": parsed["body"],
+        "nameId": (" %s joins room 1 (fixed) " % parsed["name"]),
+        }
+        
+        chat["html"] = tornado.escape.to_basestring(
+        self.render_string("message.html", message=chat))
+
+        #ChatSocketHandler.update_cache(chat) #dont update cache here :O for fun
+        ChatSocketHandler.send_updates(chat)
 
     def getRole(self, parsed):
 
         logging.info(type(self.room.game) is str)
          #hvorfor FUCK!!? er game i room en string?
 
-        index = self.room.players.index(self)   #get index of 'this player' in the room
-        logging.info("INDEX: ", index)
-        role = self.room.game.roleList[index]        
+        #index = self.room.players.index(self)   #get index of 'this player' in the room
+        #logging.info("INDEX: %s" % index)
+        role = self.room.game.userList[self]
+        logging.info(role)
+        #######################
+        #role = self.room.game.roleList[0]
+        #role = self.room.game.roleList[index]        
                         # get role description instead, and show it as text instead
-
         chat = {
         "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
         "body": parsed["body"],
@@ -155,6 +151,21 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         chat["html"] = tornado.escape.to_basestring(
         self.render_string("message.html", message=chat))
 
+        ChatSocketHandler.update_cache(chat)
+        ChatSocketHandler.send_updates(chat)
+
+    def start(self, parsed):
+        room = ChatSocketHandler.rooms[0] #input from
+        room.startGame()
+        chat = {
+        "id": str(uuid.uuid4()),       # Hvad skal vi bruge det lort til?
+        "body": "Game has started!",
+        "nameId": "Game",
+        }
+        index = self.room.players.index(self)   #get index of 'this player' in the room
+        logging.info("INDEX: %s" % index)
+        chat["html"] = tornado.escape.to_basestring(
+        self.render_string("message.html", message=chat))
         ChatSocketHandler.update_cache(chat)
         ChatSocketHandler.send_updates(chat)
 
@@ -178,35 +189,19 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 
         # if "start" then start a new game and print that its started
         elif (parsed["body"]=="start"):
-            room = ChatSocketHandler.rooms[0] #input from
-            room.startGame()
-
-            chat = {
-            "id": str(uuid.uuid4()),       # Hvad skal vi bruge det lort til?
-            "body": "Game has started!",
-            "nameId": "Game",
-            }
-            chat["html"] = tornado.escape.to_basestring(
-            self.render_string("message.html", message=chat))
-            ChatSocketHandler.update_cache(chat)
-            ChatSocketHandler.send_updates(chat)
+            self.start(parsed);
 
         elif parsed["method"]=="chat":
             self.chatMethod(parsed);
 
-
 def getPlayersInChat(): #static method, no self...ok?
         return ChatSocketHandler.getPlayers()
-
 
 def main():
     tornado.options.parse_command_line()
     app = Application()
     app.listen(options.port)
     tornado.ioloop.IOLoop.instance().start()
-
-
-
 
 if __name__ == "__main__":
     main()

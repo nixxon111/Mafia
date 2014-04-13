@@ -1,26 +1,27 @@
 from random import randint
+import logging
 
 class Game(object):
     cycle=0
     userList = {}
-    roleList=[]
 
-    def __init__(self, waiters):
-        self.waiters = waiters
-        self.compileRoleList()
-        self.giveRoles()
+    def __init__(self, players):
+        roleList = self.compileRoleList(players)
+        self.giveRoles(players, roleList)
 
     def __str__(self):
         return ("cycle: ", cycle, " - UserList: ", userList)
 
-    def compileRoleList(self):
+    def compileRoleList(self, players):     #take len(players instead? faster?)
         count=0
-        length = len(self.waiters)
-        print("waiters/players: ", length)
+        length = len(players)
         mafias = length/3.5
         benign=0
         hostile=0
         evil=0
+        roleList = []
+        mafiaRoles = [] ### ADD HERE TO GIVE RANDOM ROLES maybe? take from array?
+
         if (length >= 11):
             hostile = 1
         if (length >= 7):
@@ -28,40 +29,46 @@ class Game(object):
         if (length >= 14):
             evil = 1
         towns = length-(benign+hostile+mafias)
-        for user in self.waiters:
+        for user in players:
             count += 1
 
             #add another random class, some method
             # calculate how many mafia, town etc, and random between roles
+
+
             if mafias > 0:
-                self.roleList.append("Mafia Role")
+                roleList.append(Godfather())
                 mafias -= 1
             elif hostile > 0:
-                self.roleList.append("Hostile Role")
+                roleList.append("Hostile Role")
                 hostile -= 1
             elif benign > 0:
-                self.roleList.append("Benign Role")
+                roleList.append("Benign Role")
                 benign -= 1
             elif evil > 0:
-                self.roleList.append("Evil Role")
+                roleList.append("Evil Role")
                 evil -= 1
             elif towns > 0:
-                self.roleList.append("Town Role")
+                roleList.append(Doctor())
                 towns -= 1
 
-        print(self.roleList)
+            logging.info(roleList)
+            return roleList
+        
 
-    def giveRoles(self):
-        count=0
-        currentLen = len(self.waiters)
-        if len(self.waiters)!=len(self.roleList):
+
+    def giveRoles(self, players, roleList):
+        currentLen = len(players)
+        if len(players)!=len(roleList):
             print("WTF len(waiters!=len(self.roleList)!!!? Why not the same?")
-        for user in self.waiters:
-            count+=1
-            roleNo = randint(0,currentLen-count)
-            self.userList[user]=self.roleList[roleNo]
+        for user in players:
+            if len(roleList) == 0:
+                roleNo = 0
+            else:
+                roleNo = randint(0,len(roleList)-1)         #stupid randrange OR randint cannot random from 0 to 0. 
+            self.userList[user]=roleList[roleNo]
             #self.roleList.remove(self.roleList[roleNo])
-            del self.roleList[roleNo]
+            del roleList[roleNo]
         print(self.userList)
 
 class Role(object):
@@ -69,8 +76,8 @@ class Role(object):
     align="NoAlignYetForThisRole"
     healed=False
     jailed=False
-    abilityNight=False
-    abilityAvail=False
+    abilityNight=False      #not needed?
+    abilityAvail=False      #not needed?
     immune=False
     sheriffMess = "Does not have sheriff Message yet."
     investMess = "Does not have investigator Message yet."
@@ -78,8 +85,8 @@ class Role(object):
     LW = "Insert Last Will here."
     name="NoNameYetForThisRole" #always override
 
-    def __init__(self, user):
-       self.user=user
+    def __init__(self):
+        logging.info("I AM role: %s" % self.name) #nothing in constr?
 
     def setLW(self, newLW):
         self.LW=newLW
@@ -96,12 +103,15 @@ class Role(object):
 
 class Doctor(Role):
     name="Doctor"
+    align="Town"
 
 class Godfather(Role):
     name="Godfather"
+    align="Mafia"       #enums exist in python? Or maybe create constants in class.Role for safety?
 
 class Sheriff(Role):
-    name="Godfather"
+    name="Sheriff"
+    align="Town"
 
 '''
 class RoomSocketHandler(tornado.websocket.WebSocketHandler):
@@ -136,17 +146,24 @@ class RoomSocketHandler(tornado.websocket.WebSocketHandler):
 
 class Room(object):
     players = []
-    game = "GameNotStarted"
+    game = None
+    #game = "GameNotStarted"
 
 
     def addPlayer(self, player):
         self.players.append(player)
+        index = self.players.index(player)   #get index of 'this player' in the room
+        logging.info("INDEX: %s" % index)
 
     def removePlayer(self, player):
         self.players.remove(player)
 
     def startGame(self):
-        game = Game(self.players)
+        if self.game is None:
+            self.game = Game(self.players)
+        else:
+            logging.info("Game alrdy started")
+        
 
     def __init__(self):
         pass
