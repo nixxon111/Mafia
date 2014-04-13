@@ -17,7 +17,7 @@ import tornado
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r"index", MainHandler)
+            (r"/", MainHandler),
             (r"/lobby", LobbyHandler),
             (r"/chatsocket", ChatSocketHandler),
             (r"/gameroom", GameRoomHandler),

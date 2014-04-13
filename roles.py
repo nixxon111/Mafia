@@ -147,11 +147,11 @@ class Room(object):
     def __init__(self):
         self.players = []
         self.game = None
-        self.number = number
-        number += 1
+        self.number = Room.number
+        Room.number += 1
         
     def __repr__(self):
-        return "room number: "+str(self.number)+", players: "+str(len(players))+"/"+str(maxplayers)
+        return "room number: "+str(self.number)+", players: "+str(len(self.players))+"/"+str(Room.maxplayers)
 
     def addPlayer(self, player):
         self.players.append(player)
