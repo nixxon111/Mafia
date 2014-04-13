@@ -1,21 +1,9 @@
-from random import choice
+import random
 import logging
 
 class Game(object):
     cycle=0
     userList = {}
-
-    @classmethod
-    def mafiaDeception(cls):
-        nr = randint(0,2)
-        if nr == 0:
-            return Beguiler()
-        elif nr == 1:
-            return Disguiser()
-        elif nr == 2:
-            return Framer()
-        else:
-            return janitor()
 
     def __init__(self, players):
         roleList = self.compileRoleList(players)
@@ -24,22 +12,21 @@ class Game(object):
     def __str__(self):
         return ("cycle: ", cycle, " - UserList: ", userList)
 
-    def compileRoleList(self, players):     #take len(players instead? faster?)
-        #count=0
+    def compileRoleList(self, players):
         length = len(players)
         mafias = length/3.5
-        benign=0
-        hostile=0
-        evil=0
-        roleList = []
-        #mafiaRoles.add
+        numberofbenign=0
+        numberofhostile=0
+        numberofevil=0
+        factory = RoleFactory.getInstance()
 
-        if (length >= 11):
-            hostile = 1
-        if (length >= 7):
-            benign = 1
         if (length >= 14):
-            evil = 1
+            numberofevil = 1
+        if (length >= 11):
+            numberofhostile = 1
+        if (length >= 7):
+            numberofbenign = 1
+
         towns = length-(benign+hostile+mafias)
 
         if hostile > 0:
@@ -52,35 +39,13 @@ class Game(object):
             roleList.append(Survivor()) #randomBenign
             benign -= 1
 
-        if mafias > 0:
-                roleList.append(Godfather())
-                mafias -= 1
-                if mafias > 0:
-                    roleList.append(Game.mafiaDeception())
-                    mafias -= 1
-                    if mafias > 0:
-                        roleList.append(Game.mafiaDeception())#Game.mafiaKilling())
-                        mafias -= 1
-                        if mafias > 0:
-                            roleList.append(Game.mafiaDeception())#Game.mafiaSupport())
-                            mafias -= 1
-                            
-        if towns > 0:
-            roleList.append(Sheriff())
-            towns -= 1
-            if towns > 0:
-                roleList.append(Doctor())
-                towns -= 1
-                if towns > 0:
-                    roleList.append(Investigator())
-                    towns -= 1
-                    if towns > 0:
-                        roleList.append(Game.townKilling())
-                        towns -= 1
-                        if towns > 0:
-                            roleList.append(Game.townInvestigative())
-                            towns -= 1
 
+        while (mafias > 0):
+            roleList.append(factory.createMafiaRole())
+            mafias -= 1
+        while (towns > 0):
+            roleList.append(factory.createTownRole())
+            towns -= 1
 
         if len(roleList) != len(players):
             logging.info("len(roleList) != len(players) NOT GOOD, roles.py: ~63+")
@@ -102,30 +67,30 @@ class Game(object):
 
 class Role(object):
     number=0
-    align="NoAlignYetForThisRole"
+    alignment="NoalignmentYetForThisRole"
     healed=False
     jailed=False
     abilityNight=False      #not needed?
     abilityAvail=False      #not needed?
     immune=False
-    sheriffMess = "Does not have sheriff Message yet."
-    investMess = "Does not have investigator Message yet."
+    sherifMessage = "Does not have sheriff Message yet."
+    investigatorMessage = "Does not have investigator Message yet."
     isAlive = True
-    LW = "Insert Last Will here."
-    name="NoNameYetForThisRole" #always override
+    lastWill = "Insert Last Will here."
+    name="NoNameYetForThisRole" #alastWillays override
 
     def __init__(self):
         pass
 
-    def setLW(self, newLW):
-        self.LW=newLW
+    def setlastWill(self, newlastWill):
+        self.lastWill=newlastWill
 
     def useAbility(self, target):
         #override
         pass
 
-    def getLW(self ):
-        return self.LW
+    def getlastWill(self):
+        return self.lastWill
 
     def __str__(self):
      return self.name
@@ -134,77 +99,47 @@ class Role(object):
 
 class Doctor(Role):
     name="Doctor"
-    align="Town"
+    alignment="Town"
 
 class Sheriff(Role):
     name="Sheriff"
-    align="Town"
-
+    alignment="Town"
+class Investigator(Role):
+    name="Investigator"
+    alignment="Town"
             ########### HOSTILE ROLES
 
-class Serialkiller():
+class Serialkiller(Role):
     name="Serialkiller"
-    align="Neutral"
+    alignment="Neutral"
 
         ########### BENIGN ROLES
 
-class Survivor():
+class Survivor(Role):
     name="Survivor"
-    align="Neutral"
+    alignment="Neutral"
 
         ########### MAFIA ROLES
 
 class Godfather(Role):
     name="Godfather"
-    align="Mafia"       #enums exist in python? Or maybe create constants in class.Role for safety?
-
+    alignment="Mafia"       #enums exist in python? Or maybe create constants in class.Role for safety?
 
 class Beguiler(Role):
     name="Beguiler"
-    align="Mafia"  
+    alignment="Mafia"  
 
 class Disguiser(Role):
     name="Disguiser"
-    align="Mafia"
+    alignment="Mafia"
 
 class Framer(Role):
     name="Framer"
-    align="Mafia"
+    alignment="Mafia"
 
-class janitor(Role):
+class Janitor(Role):
     name="janitor"
-    align="Mafia"
-
-'''
-class RoomSocketHandler(tornado.websocket.WebSocketHandler):
-
-    def __init__(self):
-        pass
-
-    def open(self):
-        self.players.append(self)
-
-    def on_close(self):
-        self.players.remove(self)
-
-    def on_message(self, message):
-        logging.info("mess:%r", message)
-        parsed = tornado.escape.json_decode(message)
-        if parsed["body"] is None or len(parsed["body"])<1:     #avoids printing empty messages
-            return
-        else:
-            chat = {
-            "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
-            "body": parsed["body"],
-            "nameId": (" %s says " % parsed["name"]),
-            }
-            #chat["html"] = tornado.escape.to_basestring(self.render_string("message.html", message=chat))
-            for player in self.players:
-                try:
-                    player.write_message(chat)
-                except:
-                    logging.error("Error sending message", exc_info=True)
-'''
+    alignment="Mafia"
 
 class Room(object):
     number = 0
@@ -216,7 +151,7 @@ class Room(object):
         number += 1
         
     def __repr__(self):
-        return "room number: "+str(self.number)+", players: "+str(len(players)+"/"+str(maxplayers)
+        return "room number: "+str(self.number)+", players: "+str(len(players))+"/"+str(maxplayers)
 
     def addPlayer(self, player):
         self.players.append(player)
@@ -231,3 +166,37 @@ class Room(object):
             self.game = Game(self.players)
         else:
             logging.info("Game alrdy started")
+
+# lazy-loaded singleton
+def singleton(cls):
+    instances = {}
+    def getInstance():
+        if cls not in instances:
+            instances[cls] = cls()
+        return instances[cls]
+    return getInstance()
+
+@singleton
+class RoleFactory(object):
+    random.seed()
+    sortedTownsList = [Sheriff(), Doctor(), Investigator()]
+    sortedMafiaList = [Godfather(), Beguiler(), Disguiser()]
+    mafiaDeceptionList = []
+    BenignList = []
+    HostileList = []
+    def createRandomMafiaDeceptionRole():
+        return random.choice(mafiaDeceptionList).clone()
+
+    def createSortedTownRole():
+        for townie in sortedTownsList:
+            yield townie.clone()
+
+    def createSortedMafiaRole():
+        for mafia in sortedMafiaList:
+            yield mafia.clone()
+
+    def createRandomBenignRole():
+        return random.choice(BenignList).clone()
+
+    def createRandomHostileRole():
+        return random.choice(HostileList).clone()
