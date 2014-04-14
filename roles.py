@@ -1,54 +1,54 @@
 import random
 import logging
+from math import ceil
 
 class Game(object):
     cycle=0
     userList = {}
 
     def __init__(self, players):
-        roleList = self.compileRoleList(players)
+        roleList = self.setup1(players)
         self.giveRoles(players, roleList)
 
     def __str__(self):
         return ("cycle: ", cycle, " - UserList: ", userList)
 
-    def compileRoleList(self, players):
+    def setup1(self, players):
+        #sheriff, investigator, core, doctor, invest, power, protect, core, killing, 
+        #GODFATHER, support, deception, 
+        #benign, hostile, COMPLETELY RANDOM (non mafia.?)
+        roleList = []
         length = len(players)
-        mafias = length/3.5
-        numberofbenign=0
-        numberofhostile=0
-        numberofevil=0
-        factory = RoleFactory.getInstance()
+        mafias = int(ceil(length/5))
+        logging.info("5/5: %d, 6/5: %d, 10/5: %s 11/5: %d, 14/5: %d" % (int(ceil(5/5)), int(ceil(6/5)), int(ceil(10/5)), int(ceil(11/5)), int(ceil(14/5))))
+        factory = RoleFactory()#.getInstance()
 
-        if (length >= 14):
-            numberofevil = 1
-        if (length >= 11):
-            numberofhostile = 1
         if (length >= 7):
-            numberofbenign = 1
-
-        towns = length-(benign+hostile+mafias)
-
-        if hostile > 0:
-            roleList.append(Serialkiller()) #randomHostile()
-            hostile -= 1
-        if evil > 0:
-            roleList.append(Arsonist()) #randomEvil()
-            evil -= 1
-        if benign > 0:
             roleList.append(Survivor()) #randomBenign
-            benign -= 1
+            length -= 1
+            if (length >= 11):
+                roleList.append(Serialkiller()) #randomHostile()
+                length -= 1
+                '''
+                if (length >= 14):
+                    roleList.append(factory.RandomNoneMafia()) #randomHostile()
+                    length -= 1
+                    DOES NOT WORK. THE METHOD.
+                    '''
 
+
+
+        towns = length-(mafias)
 
         while (mafias > 0):
-            roleList.append(factory.createMafiaRole())
+            roleList.append(factory.createSortedMafiaRole())
             mafias -= 1
         while (towns > 0):
-            roleList.append(factory.createTownRole())
+            roleList.append(factory.createSortedTownRole())
             towns -= 1
 
         if len(roleList) != len(players):
-            logging.info("len(roleList) != len(players) NOT GOOD, roles.py: ~63+")
+            logging.info("len(roleList) != len(players) NOT GOOD, roles.py: ~45+")
                 
         logging.info(roleList)
         return roleList
@@ -60,33 +60,33 @@ class Game(object):
         if len(players)!=len(roleList):
             print("WTF len(waiters!=len(self.roleList)!!!? Why not the same?")
         for user in players:
-            role = choice(roleList)      
+            role = random.choice(roleList)      
             self.userList[user] = role
             roleList.remove(role)  
         print(self.userList)
 
 class Role(object):
-    number=0
-    alignment="NoalignmentYetForThisRole"
-    healed=False
-    jailed=False
-    abilityNight=False      #not needed?
-    abilityAvail=False      #not needed?
-    immune=False
-    sherifMessage = "Does not have sheriff Message yet."
-    investigatorMessage = "Does not have investigator Message yet."
-    isAlive = True
-    lastWill = "Insert Last Will here."
-    name="NoNameYetForThisRole" #alastWillays override
+    MAFIA = "Mafia"
+    TOWN = "Town"
+    NEUTRAL = "Unaligned"
 
     def __init__(self):
-        pass
+        self.alignment="NoalignmentYetForThisRole"
+        self.healed=False
+        self.jailed=False
+        self.immune=False
+        self.sherifMessage = "Does not have sheriff Message yet."
+        self.investigatorMessage = "Does not have investigator Message yet."
+        self.isAlive = True
+        self.lastWill = "Insert Last Will here."
+        self.name="NoNameYetForThisRole" #alastWillays override
 
     def setlastWill(self, newlastWill):
         self.lastWill=newlastWill
 
     def useAbility(self, target):
         #override
+        logging.info("THIS role: %s does not have ABILITY implemented yet" % self.name)
         pass
 
     def getlastWill(self):
@@ -98,53 +98,69 @@ class Role(object):
         ########### TOWN ROLES
 
 class Doctor(Role):
-    name="Doctor"
-    alignment="Town"
+    def __init__(self):
+        self.name="Doctor"
+        self.alignment=Role.TOWN
 
 class Sheriff(Role):
-    name="Sheriff"
-    alignment="Town"
+    def __init__(self):
+        self.name="Sheriff"
+        self.alignment=Role.TOWN
     
 class Investigator(Role):
-    name="Investigator"
-    alignment="Town"
+    def __init__(self):
+        self.name="Investigator"
+        self.alignment=Role.TOWN
             ########### HOSTILE ROLES
 
 class Serialkiller(Role):
-    name="Serialkiller"
-    alignment="Neutral"
+    def __init__(self):
+        self.name="Serialkiller"
+        self.alignment=Role.NEUTRAL
+
+class Arsonist(Role):
+    def __init__(self):
+        self.name="Arsonist"
+        self.alignment=Role.NEUTRAL
 
         ########### BENIGN ROLES
 
 class Survivor(Role):
-    name="Survivor"
-    alignment="Neutral"
+    def __init__(self):
+        self.name="Survivor"
+        self.alignment=Role.NEUTRAL
 
         ########### MAFIA ROLES
 
 class Godfather(Role):
-    name="Godfather"
-    alignment="Mafia"       #enums exist in python? Or maybe create constants in class.Role for safety?
+    def __init__(self):
+        self.name="Godfather"
+        self.alignment=Role.MAFIA       #enums exist in python? Or maybe create constants in class.Role for safety?
 
 class Beguiler(Role):
-    name="Beguiler"
-    alignment="Mafia"  
+    def __init__(self):
+        self.name="Beguiler"
+        self.alignment=Role.MAFIA  
 
 class Disguiser(Role):
-    name="Disguiser"
-    alignment="Mafia"
+    def __init__(self):
+        self.name="Disguiser"
+        self.alignment=Role.MAFIA
 
 class Framer(Role):
-    name="Framer"
-    alignment="Mafia"
+    def __init__(self):
+        self.name="Framer"
+        self.alignment=Role.MAFIA
 
 class Janitor(Role):
-    name="janitor"
-    alignment="Mafia"
+    def __init__(self):
+        self.name="Janitor"
+        self.alignment=Role.MAFIA
 
 class Room(object):
     number = 0
     maxplayers = 15
+
     def __init__(self):
         self.players = []
         self.game = None
@@ -177,27 +193,33 @@ def singleton(cls):
         return instances[cls]
     return getInstance()
 
-@singleton
+#@singleton  #what is dis magic?
 class RoleFactory(object):
     random.seed()
     sortedTownsList = [Sheriff(), Doctor(), Investigator()]
     sortedMafiaList = [Godfather(), Beguiler(), Disguiser()]
-    mafiaDeceptionList = []
-    BenignList = []
-    HostileList = []
-    def createRandomMafiaDeceptionRole():
+    mafiaDeceptionList = [Beguiler(), Disguiser(), Framer(), Janitor()] #avoid duplicate roles?
+    benignList = [Survivor()]
+    hostileList = [Arsonist(), Serialkiller()]
+
+    def createRandomMafiaDeceptionRole(self):
         return random.choice(mafiaDeceptionList).clone()
 
-    def createSortedTownRole():
+    def createSortedTownRole(self):
         for townie in sortedTownsList:
             yield townie.clone()
 
-    def createSortedMafiaRole():
+    def createSortedMafiaRole(self):
         for mafia in sortedMafiaList:
             yield mafia.clone()
 
-    def createRandomBenignRole():
+    def createRandomBenignRole(self):
         return random.choice(BenignList).clone()
 
-    def createRandomHostileRole():
+    def createRandomHostileRole(self):
         return random.choice(HostileList).clone()
+
+    def RandomNoneMafia(self):
+        #ok that its 1/3 town, 1/3 hostile and 1/3 benign, include Mafia?
+        alignmentList = random.choice[RoleFactory.benignList, RoleFactory.hostileList, RoleFactory.sortedTownsList]
+        return random.choice(alignmentList).clone()
