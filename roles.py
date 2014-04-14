@@ -53,18 +53,18 @@ class Game(object):
             benign -= 1
 
         if mafias > 0:
-                roleList.append(Godfather())
+            roleList.append(Godfather())
+            mafias -= 1
+            if mafias > 0:
+                roleList.append(Game.mafiaDeception())
                 mafias -= 1
                 if mafias > 0:
-                    roleList.append(Game.mafiaDeception())
+                    roleList.append(Game.mafiaDeception())#Game.mafiaKilling())
                     mafias -= 1
                     if mafias > 0:
-                        roleList.append(Game.mafiaDeception())#Game.mafiaKilling())
+                        roleList.append(Game.mafiaDeception())#Game.mafiaSupport())
                         mafias -= 1
-                        if mafias > 0:
-                            roleList.append(Game.mafiaDeception())#Game.mafiaSupport())
-                            mafias -= 1
-                            
+
         if towns > 0:
             roleList.append(Sheriff())
             towns -= 1
