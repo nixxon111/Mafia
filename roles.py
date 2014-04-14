@@ -193,7 +193,6 @@ def singleton(cls):
         return instances[cls]
     return getInstance()
 
-#@singleton  #what is dis magic?
 class RoleFactory(object):
     random.seed()
     sortedTownsList = [Sheriff(), Doctor(), Investigator()]
