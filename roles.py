@@ -1,5 +1,6 @@
 import random
 import logging
+import copy
 from math import ceil
 
 class Game(object):
@@ -22,7 +23,8 @@ class Game(object):
         mafias = int(ceil(length/5))
         logging.info("5/5: %d, 6/5: %d, 10/5: %s 11/5: %d, 14/5: %d" % (int(ceil(5/5)), int(ceil(6/5)), int(ceil(10/5)), int(ceil(11/5)), int(ceil(14/5))))
         factory = singleton(RoleFactory)
-
+        role = factory.createRandomMafiaDeceptionRole()
+        logging.info(role)
         if (length >= 7):
             roleList.append(Survivor()) #randomBenign
             length -= 1
@@ -39,12 +41,13 @@ class Game(object):
 
 
         towns = length-(mafias)
-
+        mafiagenerator = factory.createSortedMafiaRole()
         while (mafias > 0):
-            roleList.append(factory.createSortedMafiaRole())
+            roleList.append(next(mafiagenerator))
             mafias -= 1
+        towngenerator = factory.createSortedTownRole()
         while (towns > 0):
-            roleList.append(factory.createSortedTownRole())
+            roleList.append(next(towngenerator))
             towns -= 1
 
         if len(roleList) != len(players):
@@ -193,33 +196,36 @@ def singleton(cls):
         return instances[cls]
     return getInstance()
 
-#@singleton  #what is dis magic?
+#@singleton
 class RoleFactory(object):
-    random.seed()
-    sortedTownsList = [Sheriff(), Doctor(), Investigator()]
-    sortedMafiaList = [Godfather(), Beguiler(), Disguiser()]
-    mafiaDeceptionList = [Beguiler(), Disguiser(), Framer(), Janitor()] #avoid duplicate roles?
-    benignList = [Survivor()]
-    hostileList = [Arsonist(), Serialkiller()]
+    def __init__(self):
+        random.seed()
+        self.sortedTownsList = [Sheriff(), Doctor(), Investigator()]
+        self.sortedMafiaList = [Godfather(), Beguiler(), Disguiser()]
+        self.mafiaDeceptionList = [Beguiler(), Disguiser(), Framer(), Janitor()] #avoid duplicate roles?
+        self.benignList = [Survivor()]
+        self.hostileList = [Arsonist(), Serialkiller()]
 
     def createRandomMafiaDeceptionRole(self):
-        return random.choice(mafiaDeceptionList).clone()
+        return copy.copy(random.choice(self.mafiaDeceptionList))
 
     def createSortedTownRole(self):
-        for townie in sortedTownsList:
-            yield townie.clone()
+        while(True):
+            for townie in self.sortedTownsList:
+                yield copy.copy(townie)
 
     def createSortedMafiaRole(self):
-        for mafia in sortedMafiaList:
-            yield mafia.clone()
+        while(True):
+            for mafia in self.sortedMafiaList:
+                yield copy.copy(mafia)
 
     def createRandomBenignRole(self):
-        return random.choice(BenignList).clone()
+        return copy.copy(random.choice(self.BenignList))
 
     def createRandomHostileRole(self):
-        return random.choice(HostileList).clone()
+        return copy.copy(random.choice(self.HostileList))
 
     def RandomNoneMafia(self):
         #ok that its 1/3 town, 1/3 hostile and 1/3 benign, include Mafia?
-        alignmentList = random.choice[RoleFactory.benignList, RoleFactory.hostileList, RoleFactory.sortedTownsList]
-        return random.choice(alignmentList).clone()
+        alignmentList = random.choice[self.benignList, self.hostileList, self.sortedTownsList]
+        return copy.copy(random.choice(alignmentList).clone())
