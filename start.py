@@ -205,38 +205,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-'''<<<<<<< HEAD
-        if mafias > 0:
-            roleList.append(Godfather())
-            mafias -= 1
-            if mafias > 0:
-                roleList.append(Game.mafiaDeception())
-                mafias -= 1
-                if mafias > 0:
-                    roleList.append(Game.mafiaDeception())#Game.mafiaKilling())
-                    mafias -= 1
-                    if mafias > 0:
-                        roleList.append(Game.mafiaDeception())#Game.mafiaSupport())
-                        mafias -= 1
-
-        if towns > 0:
-            roleList.append(Sheriff())
-            towns -= 1
-            if towns > 0:
-                roleList.append(Doctor())
-                towns -= 1
-                if towns > 0:
-                    roleList.append(Investigator())
-                    towns -= 1
-                    if towns > 0:
-                        roleList.append(Game.townKilling())
-                        towns -= 1
-                        if towns > 0:
-                            roleList.append(Game.townInvestigative())
-                            towns -= 1
-=======
->>>>>>> 3ef7f794c6c8f246ee104ff1eef09aa67b31d37c
-'''

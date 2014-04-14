@@ -21,7 +21,7 @@ class Game(object):
         length = len(players)
         mafias = int(ceil(length/5))
         logging.info("5/5: %d, 6/5: %d, 10/5: %s 11/5: %d, 14/5: %d" % (int(ceil(5/5)), int(ceil(6/5)), int(ceil(10/5)), int(ceil(11/5)), int(ceil(14/5))))
-        factory = RoleFactory()#.getInstance()
+        factory = singleton(RoleFactory)
 
         if (length >= 7):
             roleList.append(Survivor()) #randomBenign
