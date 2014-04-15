@@ -83,6 +83,8 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
                 logging.error("Error sending message", exc_info=True)
 
     def chatMethod(self, parsed):
+        if parsed["body"] is None or len(parsed["body"])<1:     #avoids printing empty messages
+            return
         chat = {
         "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til?? Bliver brugt som id for HTML "objektet"
         "body": parsed["body"],
@@ -95,9 +97,17 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         ChatSocketHandler.send_updates(chat)
 
     def targetMethod(self, parsed):
+        targetNum = parsed["body"]
+        targetGame = self.room.game
+        targetPlayer = targetGame.playerList[targetNum-1]
+        logging.info("targetnum: %d" % targetNum)
+        targetRole = targetGame.userList[targetPlayer]
+        logging.info("Role: %s" % targetRole.name)
+
+
         chat = {
         "id": str(uuid.uuid4()),        #Hv
-        "body": parsed["body"],
+        "body": ("Player: %d, who plays: %s" % (targetNum, targetRole.name)),
         "nameId": (" %s targets " % parsed["name"]),
         }
         chat["html"] = tornado.escape.to_basestring(
@@ -172,8 +182,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         logging.info("mess:%r", message)
         parsed = tornado.escape.json_decode(message)
-        if parsed["body"] is None or len(parsed["body"])<1:     #avoids printing empty messages
-            return
+        
 
         if parsed["body"]=="newroom":
             self.newroom(parsed);

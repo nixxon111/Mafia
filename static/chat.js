@@ -72,7 +72,7 @@ function target(player) {
     var info = player+"";       // "convert" to string by adding + "";
     message={}
     message["method"]="target";
-    message["body"]=info;
+    message["body"]=player;
     message["name"]=updater.name;
     updater.socket.send(JSON.stringify(message));
     form.find("input[type=text]").val("").select();

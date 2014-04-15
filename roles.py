@@ -4,10 +4,11 @@ import copy
 from math import ceil
 
 class Game(object):
-    cycle=0
-    userList = {}
 
     def __init__(self, players):
+        self.userList = {}
+        self.playerList = []
+        self.cycle = 0
         roleList = self.setup1(players)
         self.giveRoles(players, roleList)
 
@@ -20,32 +21,34 @@ class Game(object):
         #benign, hostile, COMPLETELY RANDOM (non mafia.?)
         roleList = []
         length = len(players)
-        mafias = int(ceil(length/5))
-        logging.info("5/5: %d, 6/5: %d, 10/5: %s 11/5: %d, 14/5: %d" % (int(ceil(5/5)), int(ceil(6/5)), int(ceil(10/5)), int(ceil(11/5)), int(ceil(14/5))))
+        
         factory = singleton(RoleFactory)
-        role = factory.createRandomMafiaDeceptionRole()
-        logging.info(role)
         if (length >= 7):
             roleList.append(Survivor()) #randomBenign
             length -= 1
-            if (length >= 11):
+            if (length >= 10):  #11th player
                 roleList.append(Serialkiller()) #randomHostile()
                 length -= 1
-                '''
-                if (length >= 14):
-                    roleList.append(factory.RandomNoneMafia()) #randomHostile()
+                if (length >= 12):  #14th player
+                    roleList.append(factory.RandomNoneMafia())
                     length -= 1
-                    DOES NOT WORK. THE METHOD.
-                    '''
-
-
-
+                    
+        mafias = int(ceil(length/5)) # one more mafia at 1st, 6th and 13th player
         towns = length-(mafias)
+        if (mafias >= 1):
+            roleList.append(Godfather())
+            if (mafias >= 2):
+                roleList.append(createRandomMafiaDeceptionRole())
+                if (mafias >= 3):
+                    roleList.append(createRandomMafiaDeceptionRole())   #mafiaSupport()
+        '''
         mafiagenerator = factory.createSortedMafiaRole()
         while (mafias > 0):
             roleList.append(next(mafiagenerator))
             mafias -= 1
+        '''
         towngenerator = factory.createSortedTownRole()
+       
         while (towns > 0):
             roleList.append(next(towngenerator))
             towns -= 1
@@ -65,7 +68,9 @@ class Game(object):
         for user in players:
             role = random.choice(roleList)      
             self.userList[user] = role
-            roleList.remove(role)  
+            roleList.remove(role)
+            self.playerList.append(user)
+
         print(self.userList)
 
 class Role(object):
@@ -200,7 +205,7 @@ class RoleFactory(object):
     def __init__(self):
         random.seed()
         self.sortedTownsList = [Sheriff(), Doctor(), Investigator()]
-        self.sortedMafiaList = [Godfather(), Beguiler(), Disguiser()]
+        self.sortedMafiaList = [Godfather()] #second be mafiaSupportList
         self.mafiaDeceptionList = [Beguiler(), Disguiser(), Framer(), Janitor()] #avoid duplicate roles?
         self.benignList = [Survivor()]
         self.hostileList = [Arsonist(), Serialkiller()]
@@ -226,5 +231,6 @@ class RoleFactory(object):
 
     def RandomNoneMafia(self):
         #ok that its 1/3 town, 1/3 hostile and 1/3 benign, include Mafia?
-        alignmentList = random.choice[self.benignList, self.hostileList, self.sortedTownsList]
-        return copy.copy(random.choice(alignmentList).clone())
+        alignmentList = random.choice([self.benignList, self.hostileList, self.sortedTownsList])
+        logging.info(alignmentList)
+        return copy.copy(random.choice(alignmentList))
