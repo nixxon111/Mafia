@@ -22,8 +22,7 @@ class Game(object):
         length = len(players)
         mafias = int(ceil(length/5))
         logging.info("5/5: %d, 6/5: %d, 10/5: %s 11/5: %d, 14/5: %d" % (int(ceil(5/5)), int(ceil(6/5)), int(ceil(10/5)), int(ceil(11/5)), int(ceil(14/5))))
-        factory = singleton(RoleFactory)
-        role = factory.createRandomMafiaDeceptionRole()
+        role = RoleFactory.createRandomMafiaDeceptionRole()
         logging.info(role)
         if (length >= 7):
             roleList.append(Survivor()) #randomBenign
@@ -41,11 +40,11 @@ class Game(object):
 
 
         towns = length-(mafias)
-        mafiagenerator = factory.createSortedMafiaRole()
+        mafiagenerator = RoleFactory.createSortedMafiaRole()
         while (mafias > 0):
             roleList.append(next(mafiagenerator))
             mafias -= 1
-        towngenerator = factory.createSortedTownRole()
+        towngenerator = RoleFactory.createSortedTownRole()
         while (towns > 0):
             roleList.append(next(towngenerator))
             towns -= 1
@@ -196,7 +195,7 @@ def singleton(cls):
         return instances[cls]
     return getInstance()
 
-#@singleton
+@singleton
 class RoleFactory(object):
     def __init__(self):
         random.seed()
@@ -228,4 +227,4 @@ class RoleFactory(object):
     def RandomNoneMafia(self):
         #ok that its 1/3 town, 1/3 hostile and 1/3 benign, include Mafia?
         alignmentList = random.choice[self.benignList, self.hostileList, self.sortedTownsList]
-        return copy.copy(random.choice(alignmentList).clone())
+        return copy.copy(random.choice(alignmentList))
