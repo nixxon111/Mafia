@@ -21,8 +21,10 @@ class Game(object):
         #benign, hostile, COMPLETELY RANDOM (non mafia.?)
         roleList = []
         length = len(players)
-        
+
         factory = singleton(RoleFactory)
+
+        mafias = int(ceil(length/5))
         if (length >= 7):
             roleList.append(Survivor()) #randomBenign
             length -= 1
@@ -35,6 +37,7 @@ class Game(object):
                     
         mafias = int(ceil(length/5)) # one more mafia at 1st, 6th and 13th player
         towns = length-(mafias)
+
         if (mafias >= 1):
             roleList.append(Godfather())
             if (mafias >= 2):
@@ -48,7 +51,6 @@ class Game(object):
             mafias -= 1
         '''
         towngenerator = factory.createSortedTownRole()
-       
         while (towns > 0):
             roleList.append(next(towngenerator))
             towns -= 1
@@ -201,6 +203,7 @@ def singleton(cls):
         return instances[cls]
     return getInstance()
 
+@singleton
 class RoleFactory(object):
     def __init__(self):
         random.seed()
