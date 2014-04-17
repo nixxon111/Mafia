@@ -6,16 +6,15 @@ from math import ceil
 class Game(object):
 
     def __init__(self, players):
-        self.userList = {}
         self.playerList = []
         self.cycle = 0
-        roleList = self.setup1(players)
+        roleList = self.setupOne(players)
         self.giveRoles(players, roleList)
 
     def __str__(self):
-        return ("cycle: ", cycle, " - UserList: ", userList)
+        return ("cycle: ", self.cycle, " - UserList: ", self.userList)
 
-    def setup1(self, players):
+    def setupOne(self, players):
         #sheriff, investigator, core, doctor, invest, power, protect, core, killing, 
         #GODFATHER, support, deception, 
         #benign, hostile, COMPLETELY RANDOM (non mafia.?)
@@ -62,16 +61,13 @@ class Game(object):
 
 
     def giveRoles(self, players, roleList):
-        currentLen = len(players)
         if len(players)!=len(roleList):
             print("WTF len(waiters!=len(self.roleList)!!!? Why not the same?")
         for user in players:
             role = random.choice(roleList)      
-            self.userList[user] = role
+            user.role = role
             roleList.remove(role)
             self.playerList.append(user)
-
-        print(self.userList)
 
 class Role(object):
     MAFIA = "Mafia"
@@ -92,7 +88,7 @@ class Role(object):
     def setlastWill(self, newlastWill):
         self.lastWill=newlastWill
 
-    def useAbility(self, target):
+    def useAbility(self, targetNum, player):
         #override
         logging.info("THIS role: %s does not have ABILITY implemented yet" % self.name)
         pass
@@ -125,6 +121,23 @@ class Serialkiller(Role):
     def __init__(self):
         self.name="Serialkiller"
         self.alignment=Role.NEUTRAL
+
+    def useAbility(self, targetNum, player):    #Serial Killer
+        targetRole = player.role
+        info = ("You attacked player %d" % targetNum)
+        if (not targetRole.isAlive):
+            info = ("Player %d was already dead when you arrived" % targetNum)
+            logging.info("SK KILL: %s was alrdy dead" % targetRole.name)
+        elif targetRole.jailed:
+            logging.info("SK KILL: %s was in jail" % targetRole.name)
+        elif targetRole.heald:
+            logging.info("SK KILL: %s got healed" % targetRole.name)
+        elif targetRole.immune:
+            logging.info("SK KILL: %s was/is immune" % targetRole.name)
+        else:
+            targetRole.isAlive = False
+            logging.info("SK KILL: Succesfully killed %s " % targetRole.name)
+            player.died() #remove them from chat ETC
 
 class Arsonist(Role):
     def __init__(self):

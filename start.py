@@ -6,6 +6,7 @@ import tornado.web
 import tornado.websocket
 import os.path
 import uuid
+import re
 from random import randint
 from tornado.options import define, options
 import roles
@@ -47,7 +48,6 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     cache = []          #class field
     cache_size = 30     #class field        #hvor mange linjer/beskeder den skal huske/printe når en ny person joiner
     rooms = []          #class field
-    userId = randint(0,10)
     #room = "Is not in any room"
 
     @classmethod
@@ -60,6 +60,9 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         ChatSocketHandler.waiters.add(self)
+        self.room = None
+        self.role = None
+        self.userId = randint(0,10)
 
     def on_close(self):
         ChatSocketHandler.waiters.remove(self)
@@ -82,13 +85,38 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
             except:
                 logging.error("Error sending message", exc_info=True)
 
+    def getPlayer(self, targetNum):
+        logging.info(isinstance(targetNum, str))
+        if not isinstance(targetNum, int):
+            targetNum = int(targetNum)
+        if self.room is not None:
+            if self.room.game is not None:
+                logging.info("player %d is %s" % (targetNum, self.room.game.playerList[(targetNum-1)].role))
+                return self.room.game.playerList[targetNum-1]
+            else:
+                logging.info("game not started yet")
+                parsed = {
+                "body": "game not started yet",
+                "name": "getNameFrom\"chat.js\""
+                }
+                self.chatMethod(parsed)
+
+            
+        else:
+            logging.info("THIS PLAYER IS NOT IN A ROOM YET")
+            parsed = {
+            "body": "I am not in a room yet",
+            "name": "getNameFrom\"chat.js\""
+            }
+            self.chatMethod(parsed)
+
     def chatMethod(self, parsed):
         if parsed["body"] is None or len(parsed["body"])<1:     #avoids printing empty messages
             return
         chat = {
         "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til?? Bliver brugt som id for HTML "objektet"
         "body": parsed["body"],
-        "nameId": (" %s says " % parsed["name"]),
+        "nameId": (" %s says: " % parsed["name"]),
         }
         chat["html"] = tornado.escape.to_basestring(
         self.render_string("message.html", message=chat))
@@ -150,12 +178,11 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         ChatSocketHandler.send_updates(chat)
 
     def getRole(self, parsed):
-        role = self.room.game.userList[self]
-        logging.info(role)
+        logging.info("Get this player's role: %s" % self.role)
         chat = {
         "id": str(uuid.uuid4()),        #Hvad skal vi bruge det lort til? Får error hvis man fjerner det...wtf bliver ikke brugt xD?
         "body": parsed["body"],
-        "nameId": (">Role< %s has role: %s" % (parsed["name"], role.name))
+        "nameId": (">Role< %s has role: %s" % (parsed["name"], self.role.name))
         }
         
         chat["html"] = tornado.escape.to_basestring(
@@ -169,7 +196,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         room.startGame()
         chat = {
         "id": str(uuid.uuid4()),       # Hvad skal vi bruge det lort til?
-        "body": "Game has started!",
+        "body": ">>>>>>> Game has started!",
         "nameId": "Game",
         }
         index = self.room.players.index(self)   #get index of 'this player' in the room
@@ -189,6 +216,10 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 
         elif parsed["body"]=="join":
             self.join(parsed);
+
+        elif re.match(r"[123456789]+", parsed["body"]):
+            logging.info("number matched")
+            self.getPlayer(parsed["body"]);
 
         elif parsed["body"]=="role":
             self.getRole(parsed);
