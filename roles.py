@@ -22,8 +22,6 @@ class Game(object):
         roleList = []
         length = len(players)
 
-        factory = singleton(RoleFactory)
-
         mafias = int(ceil(length/5))
         if (length >= 7):
             roleList.append(Survivor()) #randomBenign
@@ -31,8 +29,8 @@ class Game(object):
             if (length >= 10):  #11th player
                 roleList.append(Serialkiller()) #randomHostile()
                 length -= 1
-                if (length >= 12):  #14th player
-                    roleList.append(factory.RandomNoneMafia())
+                if (length >= 1):  #14th player
+                    roleList.append(RoleFactory.RandomNoneMafia())
                     length -= 1
                     
         mafias = int(ceil(length/5)) # one more mafia at 1st, 6th and 13th player
@@ -41,16 +39,16 @@ class Game(object):
         if (mafias >= 1):
             roleList.append(Godfather())
             if (mafias >= 2):
-                roleList.append(createRandomMafiaDeceptionRole())
+                roleList.append(RoleFactory.createRandomMafiaDeceptionRole())
                 if (mafias >= 3):
-                    roleList.append(createRandomMafiaDeceptionRole())   #mafiaSupport()
+                    roleList.append(RoleFactory.createRandomMafiaDeceptionRole())   #mafiaSupport()
         '''
         mafiagenerator = factory.createSortedMafiaRole()
         while (mafias > 0):
             roleList.append(next(mafiagenerator))
             mafias -= 1
         '''
-        towngenerator = factory.createSortedTownRole()
+        towngenerator = RoleFactory.createSortedTownRole()
         while (towns > 0):
             roleList.append(next(towngenerator))
             towns -= 1
